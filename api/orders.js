@@ -1,48 +1,38 @@
-const fs = require('fs');
-const path = require('path');
-
-const ordersFile = path.join(process.cwd(), 'data', 'orders.json');
-const usersFile = path.join(process.cwd(), 'data', 'users.json');
-const productsFile = path.join(process.cwd(), 'data', 'products.json');
-
-function readOrders() {
-  try {
-    const data = fs.readFileSync(ordersFile, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
+// 内存存储
+let orders = [];
+let users = [
+  {
+    id: 1,
+    username: 'admin',
+    password: 'admin123',
+    email: 'admin@example.com',
+    diamonds: 1000,
+    role: 'admin',
+    createdAt: new Date().toISOString()
   }
-}
-
-function writeOrders(orders) {
-  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
-}
-
-function readUsers() {
-  try {
-    const data = fs.readFileSync(usersFile, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
+];
+let products = [
+  {
+    id: 1,
+    name: '高级游戏账号',
+    description: '包含全套皮肤和道具的高级账号',
+    price: 100,
+    stock: 10,
+    category: '游戏账号',
+    image: 'https://via.placeholder.com/200',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 2,
+    name: '视频会员账号',
+    description: '年度VIP会员账号',
+    price: 50,
+    stock: 20,
+    category: '会员账号',
+    image: 'https://via.placeholder.com/200',
+    createdAt: new Date().toISOString()
   }
-}
-
-function writeUsers(users) {
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-}
-
-function readProducts() {
-  try {
-    const data = fs.readFileSync(productsFile, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-function writeProducts(products) {
-  fs.writeFileSync(productsFile, JSON.stringify(products, null, 2));
-}
+];
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -55,18 +45,13 @@ module.exports = async (req, res) => {
   
   try {
     if (req.method === 'GET') {
-      const orders = readOrders();
       return res.status(200).json(orders);
     }
     
     if (req.method === 'POST') {
-      const { action, userId, productId, contactInfo } = req.body;
+      const { action, userId, productId, contactInfo, orderId, status } = req.body;
       
       if (action === 'create') {
-        const users = readUsers();
-        const products = readProducts();
-        const orders = readOrders();
-        
         const user = users.find(u => u.id === parseInt(userId));
         const product = products.find(p => p.id === parseInt(productId));
         
@@ -99,15 +84,12 @@ module.exports = async (req, res) => {
         };
         
         orders.push(newOrder);
-        writeOrders(orders);
         
         // 减少用户钻石
         user.diamonds -= product.price;
-        writeUsers(users);
         
         // 减少商品库存
         product.stock -= 1;
-        writeProducts(products);
         
         return res.status(200).json({ 
           message: '订单创建成功，请联系客服完成交易', 
@@ -117,16 +99,12 @@ module.exports = async (req, res) => {
       }
       
       if (action === 'update') {
-        const { orderId, status } = req.body;
-        const orders = readOrders();
-        
         const orderIndex = orders.findIndex(o => o.id === parseInt(orderId));
         if (orderIndex === -1) {
           return res.status(404).json({ error: '订单不存在' });
         }
         
         orders[orderIndex].status = status;
-        writeOrders(orders);
         
         return res.status(200).json({ message: '订单状态更新成功', order: orders[orderIndex] });
       }
@@ -137,4 +115,5 @@ module.exports = async (req, res) => {
     console.error('订单管理错误:', error);
     res.status(500).json({ error: '服务器错误' });
   }
-};
+};,
+        
