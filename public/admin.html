@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号购买平台 - 管理后台</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>账号购买平台 - 管理后台</h1>
+            <div class="user-info">
+                <span id="adminWelcome">管理员: <span id="adminUsername"></span></span>
+                <button id="backToDashboard" class="btn-secondary">返回前台</button>
+                <button id="adminLogout" class="btn-secondary">退出</button>
+            </div>
+        </header>
+        
+        <nav class="admin-nav">
+            <button class="nav-button active" data-section="dashboard">仪表板</button>
+            <button class="nav-button" data-section="users">用户管理</button>
+            <button class="nav-button" data-section="products">商品管理</button>
+            <button class="nav-button" data-section="orders">订单管理</button>
+        </nav>
+        
+        <main>
+            <section id="dashboard" class="section active">
+                <h2>数据统计</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>总用户数</h3>
+                        <p id="totalUsers">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>总订单数</h3>
+                        <p id="totalOrders">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>待处理订单</h3>
+                        <p id="pendingOrders">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>已完成订单</h3>
+                        <p id="completedOrders">0</p>
+                    </div>
+                </div>
+                
+                <h3>最近订单</h3>
+                <div id="recentOrders" class="orders-list"></div>
+            </section>
+            
+            <section id="users" class="section">
+                <h2>用户管理</h2>
+                <div class="admin-actions">
+                    <button id="addDiamondsBtn" class="btn-primary">为用户充值钻石</button>
+                </div>
+                <div id="usersList" class="users-list"></div>
+            </section>
+            
+            <section id="products" class="section">
+                <h2>商品管理</h2>
+                <div class="admin-actions">
+                    <button id="addProductBtn" class="btn-primary">添加商品</button>
+                </div>
+                <div id="productsList" class="products-grid"></div>
+            </section>
+            
+            <section id="orders" class="section">
+                <h2>订单管理</h2>
+                <div id="ordersList" class="orders-list"></div>
+            </section>
+        </main>
+        
+        <div id="message" class="message"></div>
+        
+        <!-- 充值模态框 -->
+        <div id="rechargeModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>为用户充值钻石</h3>
+                <form id="rechargeForm">
+                    <div class="form-group">
+                        <label for="rechargeUserId">选择用户</label>
+                        <select id="rechargeUserId" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rechargeAmount">钻石数量</label>
+                        <input type="number" id="rechargeAmount" min="1" required>
+                    </div>
+                    <button type="submit" class="btn-primary">确认充值</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 添加商品模态框 -->
+        <div id="productModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3 id="productModalTitle">添加商品</h3>
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    <div class="form-group">
+                        <label for="productName">商品名称</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">商品描述</label>
+                        <textarea id="productDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">价格 (钻石)</label>
+                        <input type="number" id="productPrice" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">库存</label>
+                        <input type="number" id="productStock" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">分类</label>
+                        <input type="text" id="productCategory" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productImage">图片URL</label>
+                        <input type="text" id="productImage">
+                    </div>
+                    <button type="submit" class="btn-primary" id="productSubmitBtn">添加商品</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="assets/script.js"></script>
+</body>
+  </html>
