@@ -1,20 +1,26 @@
-const fs = require('fs');
-const path = require('path');
-
-const productsFile = path.join(process.cwd(), 'data', 'products.json');
-
-function readProducts() {
-  try {
-    const data = fs.readFileSync(productsFile, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
+// 内存存储
+let products = [
+  {
+    id: 1,
+    name: '高级游戏账号',
+    description: '包含全套皮肤和道具的高级账号',
+    price: 100,
+    stock: 10,
+    category: '游戏账号',
+    image: 'https://via.placeholder.com/200',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 2,
+    name: '视频会员账号',
+    description: '年度VIP会员账号',
+    price: 50,
+    stock: 20,
+    category: '会员账号',
+    image: 'https://via.placeholder.com/200',
+    createdAt: new Date().toISOString()
   }
-}
-
-function writeProducts(products) {
-  fs.writeFileSync(productsFile, JSON.stringify(products, null, 2));
-}
+];
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,13 +33,11 @@ module.exports = async (req, res) => {
   
   try {
     if (req.method === 'GET') {
-      const products = readProducts();
       return res.status(200).json(products);
     }
     
     if (req.method === 'POST') {
-      const { action, name, description, price, stock, category, image } = req.body;
-      const products = readProducts();
+      const { action, name, description, price, stock, category, image, id } = req.body;
       
       if (action === 'add') {
         const newProduct = {
@@ -48,29 +52,26 @@ module.exports = async (req, res) => {
         };
         
         products.push(newProduct);
-        writeProducts(products);
         
         return res.status(200).json({ message: '商品添加成功', product: newProduct });
       }
       
       if (action === 'update') {
-        const { id, ...updates } = req.body;
-        const productIndex = products.findIndex(p => p.id === parseInt(id));
+        const { id: productId, ...updates } = req.body;
+        const productIndex = products.findIndex(p => p.id === parseInt(productId));
         
         if (productIndex === -1) {
           return res.status(404).json({ error: '商品不存在' });
         }
         
         products[productIndex] = { ...products[productIndex], ...updates };
-        writeProducts(products);
         
         return res.status(200).json({ message: '商品更新成功', product: products[productIndex] });
       }
       
       if (action === 'delete') {
         const { id } = req.body;
-        const filteredProducts = products.filter(p => p.id !== parseInt(id));
-        writeProducts(filteredProducts);
+        products = products.filter(p => p.id !== parseInt(id));
         
         return res.status(200).json({ message: '商品删除成功' });
       }
