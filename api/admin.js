@@ -1,30 +1,16 @@
-const fs = require('fs');
-const path = require('path');
-
-const usersFile = path.join(process.cwd(), 'data', 'users.json');
-const ordersFile = path.join(process.cwd(), 'data', 'orders.json');
-
-function readUsers() {
-  try {
-    const data = fs.readFileSync(usersFile, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
+// 内存存储
+let users = [
+  {
+    id: 1,
+    username: 'admin',
+    password: 'admin123',
+    email: 'admin@example.com',
+    diamonds: 1000,
+    role: 'admin',
+    createdAt: new Date().toISOString()
   }
-}
-
-function writeUsers(users) {
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-}
-
-function readOrders() {
-  try {
-    const data = fs.readFileSync(ordersFile, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
+];
+let orders = [];
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -37,10 +23,9 @@ module.exports = async (req, res) => {
   
   try {
     if (req.method === 'POST') {
-      const { action, userId, diamonds, orderId, status } = req.body;
+      const { action, userId, diamonds } = req.body;
       
       if (action === 'recharge') {
-        const users = readUsers();
         const userIndex = users.findIndex(u => u.id === parseInt(userId));
         
         if (userIndex === -1) {
@@ -48,7 +33,6 @@ module.exports = async (req, res) => {
         }
         
         users[userIndex].diamonds += parseInt(diamonds);
-        writeUsers(users);
         
         return res.status(200).json({ 
           message: '充值成功', 
@@ -61,9 +45,6 @@ module.exports = async (req, res) => {
       }
       
       if (action === 'getStats') {
-        const users = readUsers();
-        const orders = readOrders();
-        
         const totalUsers = users.length;
         const totalOrders = orders.length;
         const pendingOrders = orders.filter(o => o.status === 'pending').length;
