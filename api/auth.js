@@ -1,23 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-
-// 数据文件路径
-const usersFile = path.join(process.cwd(), 'data', 'users.json');
-
-// 读取用户数据
-function readUsers() {
-  try {
-    const data = fs.readFileSync(usersFile, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
+// 内存存储
+let users = [
+  {
+    id: 1,
+    username: 'admin',
+    password: 'admin123',
+    email: 'admin@example.com',
+    diamonds: 1000,
+    role: 'admin',
+    createdAt: new Date().toISOString()
   }
-}
-
-// 写入用户数据
-function writeUsers(users) {
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-}
+];
 
 module.exports = async (req, res) => {
   // 设置CORS头
@@ -33,8 +25,6 @@ module.exports = async (req, res) => {
   
   try {
     if (req.method === 'POST') {
-      const users = readUsers();
-      
       if (action === 'register') {
         // 检查用户是否存在
         const existingUser = users.find(user => user.username === username);
@@ -54,7 +44,6 @@ module.exports = async (req, res) => {
         };
         
         users.push(newUser);
-        writeUsers(users);
         
         return res.status(200).json({ 
           message: '注册成功',
@@ -73,6 +62,11 @@ module.exports = async (req, res) => {
           user: { id: user.id, username: user.username, diamonds: user.diamonds, role: user.role }
         });
       }
+    }
+    
+    // 获取用户列表（管理员功能）
+    if (req.method === 'GET' && req.query.action === 'getUsers') {
+      return res.status(200).json(users);
     }
     
     res.status(405).json({ error: '方法不允许' });
